@@ -13,6 +13,7 @@ final class StatusViewModel: ObservableObject {
 
     init(configManager: ConfigurationManager) {
         self.configManager = configManager
+        startPolling()
     }
 
     var aggregateStatus: EffectiveRunStatus {
@@ -67,6 +68,8 @@ final class StatusViewModel: ObservableObject {
             return
         }
 
+        guard !isLoading else { return }
+
         isLoading = true
         defer { isLoading = false }
 
@@ -82,6 +85,9 @@ final class StatusViewModel: ObservableObject {
             }
             return results
         }
+
+        // Don't update UI if task was cancelled during fetch
+        guard !Task.isCancelled else { return }
 
         // Preserve the order from config
         let orderedStatuses = config.repos.compactMap { repo in

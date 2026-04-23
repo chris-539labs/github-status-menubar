@@ -8,6 +8,7 @@ actor GitHubAPIService {
     init() {
         let config = URLSessionConfiguration.default
         config.timeoutIntervalForRequest = 30
+        config.timeoutIntervalForResource = 60
         self.session = URLSession(configuration: config)
 
         self.decoder = JSONDecoder()
@@ -50,8 +51,9 @@ actor GitHubAPIService {
     func fetchAccessibleRepos(token: String) async throws -> [RepoIdentifier] {
         var allRepos: [RepoIdentifier] = []
         var page = 1
+        let maxPages = 10
 
-        while true {
+        while page <= maxPages {
             let url = URL(string: "\(baseURL)/user/repos?per_page=100&sort=full_name&page=\(page)")!
             let request = makeRequest(url: url, token: token)
             let (data, response) = try await session.data(for: request)

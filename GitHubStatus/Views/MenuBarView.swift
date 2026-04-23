@@ -89,9 +89,6 @@ struct MenuBarView: View {
             .padding(.vertical, 8)
         }
         .frame(width: 420)
-        .task {
-            viewModel.startPolling()
-        }
     }
 
     private func emptyStateView(_ message: String) -> some View {

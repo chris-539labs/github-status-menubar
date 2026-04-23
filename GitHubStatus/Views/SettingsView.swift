@@ -124,7 +124,29 @@ struct RepositoriesSettingsTab: View {
             // Added repos
             List {
                 ForEach(configManager.configuration.repos) { repo in
-                    HStack {
+                    HStack(spacing: 8) {
+                        VStack(spacing: 0) {
+                            Button {
+                                moveRepo(repo, by: -1)
+                            } label: {
+                                Image(systemName: "chevron.up")
+                                    .font(.system(size: 9))
+                                    .frame(width: 16, height: 12)
+                            }
+                            .buttonStyle(.plain)
+                            .disabled(configManager.configuration.repos.first == repo)
+
+                            Button {
+                                moveRepo(repo, by: 1)
+                            } label: {
+                                Image(systemName: "chevron.down")
+                                    .font(.system(size: 9))
+                                    .frame(width: 16, height: 12)
+                            }
+                            .buttonStyle(.plain)
+                            .disabled(configManager.configuration.repos.last == repo)
+                        }
+
                         Text(repo.fullName)
                             .font(.system(size: 13))
                         Spacer()
@@ -137,6 +159,7 @@ struct RepositoriesSettingsTab: View {
                         .buttonStyle(.plain)
                     }
                 }
+                .onMove(perform: moveRepos)
             }
             .listStyle(.bordered)
         }
@@ -164,6 +187,23 @@ struct RepositoriesSettingsTab: View {
         guard !configManager.configuration.repos.contains(repo) else { return }
         var config = configManager.configuration
         config.repos.append(repo)
+        configManager.save(config)
+        onConfigChange()
+    }
+
+    private func moveRepo(_ repo: RepoIdentifier, by offset: Int) {
+        var config = configManager.configuration
+        guard let index = config.repos.firstIndex(of: repo) else { return }
+        let newIndex = index + offset
+        guard config.repos.indices.contains(newIndex) else { return }
+        config.repos.swapAt(index, newIndex)
+        configManager.save(config)
+        onConfigChange()
+    }
+
+    private func moveRepos(from source: IndexSet, to destination: Int) {
+        var config = configManager.configuration
+        config.repos.move(fromOffsets: source, toOffset: destination)
         configManager.save(config)
         onConfigChange()
     }

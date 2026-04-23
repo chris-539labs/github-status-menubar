@@ -54,9 +54,13 @@ struct WorkflowRunRow: View {
 }
 
 extension Date {
-    var relativeDescription: String {
+    private static let relativeFormatter: RelativeDateTimeFormatter = {
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .abbreviated
-        return formatter.localizedString(for: self, relativeTo: .now)
+        return formatter
+    }()
+
+    var relativeDescription: String {
+        Self.relativeFormatter.localizedString(for: self, relativeTo: .now)
     }
 }
